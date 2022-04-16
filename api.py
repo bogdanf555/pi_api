@@ -1,36 +1,15 @@
 from fastapi import FastAPI
 
-import subprocess
-import re
+from pi_api import system_information as sys_info
 
 api = FastAPI()
 
 
 @api.get("/")
-def read_root():
+def read_root() -> str:
     return "Hello World!"
 
 
-@api.get("/disk")
-def read_disk_info():
-
-    output = subprocess.Popen(
-        ["df", "-h"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-    )
-    stdout, _ = output.communicate()
-
-    stdout = re.sub("[ ]+", " ", stdout.decode())
-    info_line = stdout.split("\n")[1]
-    info_list = info_line.split(" ")
-    system_info_headlines = [
-        "filesystem",
-        "size",
-        "used",
-        "available",
-        "usage",
-        "mounted on",
-    ]
-
-    info = {key: value for key, value in zip(system_info_headlines, info_list)}
-
-    return info
+@api.get("/sys_info/disk")
+def read_disk_info() -> str:
+    return sys_info.get_disk_info()
